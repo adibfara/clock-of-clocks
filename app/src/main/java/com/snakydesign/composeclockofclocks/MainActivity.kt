@@ -3,35 +3,38 @@ package com.snakydesign.composeclockofclocks
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceEvenly
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.center
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.withSave
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.snakydesign.composeclockofclocks.ui.LittleClockTime
-import com.snakydesign.composeclockofclocks.ui.clocks.One
-import com.snakydesign.composeclockofclocks.ui.clocks.Two
+import com.snakydesign.composeclockofclocks.ui.ClockSpeed
+import com.snakydesign.composeclockofclocks.ui.clocks.components.NumberClock
+import com.snakydesign.composeclockofclocks.ui.clocks.numbers.Separator
+import com.snakydesign.composeclockofclocks.ui.firstNumber
+import com.snakydesign.composeclockofclocks.ui.secondNumber
 import com.snakydesign.composeclockofclocks.ui.theme.ComposeClockOfClocksTheme
-import com.snakydesign.composeclockofclocks.ui.toPx
+import kotlinx.coroutines.delay
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,71 +48,85 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun ClockOfClocksPreview() {
         ComposeClockOfClocksTheme {
-            // A surface container using the 'background' color from the theme
             Surface(modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colors.background) {
-                var time by remember { mutableStateOf(One) }
-                Clock(Two)
+                Box(Modifier.fillMaxSize(), Alignment.Center) {
+                    val hour = remember { mutableStateOf(0) }
+                    val minute = remember { mutableStateOf(0) }
+                    val second = remember { mutableStateOf(0) }
+                    setTimes(hour, minute, second)
+                    LaunchedEffect(key1 = Unit, block = {
+                        while (true) {
+                            delay(100)
+                            setTimes(hour, minute, second)
+                        }
+                    })
+                    WallClock(hour.value,
+                        minute.value,
+                        second.value,
+                        Modifier.align(Alignment.Center))
+                    WallClock(hour.value,
+                        minute.value,
+                        second.value,
+                        Modifier.align(Alignment.Center))
+                    Text(text = "Clock of Clocks by TheSNAKY",
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(16.dp))
+                }
             }
         }
     }
 
-    @Composable
-    fun Clock(times: Array<LittleClockTime>, modifier: Modifier = Modifier) {
-        if (times.size != 24) return
-        Column(modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceEvenly) {
-            (0..5).forEach { row ->
-                Row(Modifier
-                    .fillMaxSize()
-                    .weight(1f), horizontalArrangement = SpaceEvenly) {
-                    (0..3).forEach { column ->
+    private fun setTimes(
+        hour: MutableState<Int>,
+        minute: MutableState<Int>,
+        second: MutableState<Int>,
+    ) {
+        val calendar = Calendar.getInstance()
+        hour.value = calendar.get(Calendar.HOUR_OF_DAY)
+        minute.value = calendar.get(Calendar.MINUTE)
+        second.value = calendar.get(Calendar.SECOND)
+    }
 
-                        val item = times[(row * 4) + column]
-                        SmallClock(hourHandle = item.firstHour,
-                            minuteHandle = item.secondHour,
-                            Modifier.weight(1f).aspectRatio(1f))
-                    }
+    @Composable
+    fun WallClock(hour: Int, minute: Int, second: Int, modifier: Modifier = Modifier) {
+        BoxWithConstraints {
+            val eachWidth = maxWidth / 5
+
+            Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+
+                Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    HourClock(hour, eachWidth)
+                    NumberClock(Separator, ClockSpeed.Slow, Modifier.width(eachWidth))
+                    HourClock(minute, eachWidth)
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+
+                Row(horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()) {
+                    SecondClock(second, eachWidth)
+
                 }
             }
         }
     }
 
     @Composable
-    private fun SmallClock(hourHandle: Int, minuteHandle: Int, modifier: Modifier = Modifier) {
-        val borderSize = 8.dp.toPx()
-        val borderColor = Color(0xFFFAFAFA)
-        val borderShadowColorStart = Color(0xFFD5D5D5)
-        val borderShadowSize = 1.dp.toPx()
-        val shadowOffset = 4.dp.toPx()
-
-        val handleColor = Color.Black
-        val handleWidth = 6.dp.toPx()
-
-        val hourDegree by animateFloatAsState(hourHandle.toFloat() * 360f / 12)
-        val minuteDegree by animateFloatAsState(minuteHandle.toFloat() * 360f / 12)
-        Canvas(modifier = modifier.fillMaxSize(), onDraw = {
-            drawCircle(borderShadowColorStart,
-                style = Stroke(borderShadowSize),
-                center = this.center + Offset(-1 * shadowOffset, shadowOffset))
-            drawCircle(borderColor,
-                style = Stroke(borderSize))
-            drawHandle(hourDegree, handleColor, borderSize, handleWidth)
-            drawHandle(minuteDegree, handleColor, borderSize, handleWidth)
-        })
+    private fun MainActivity.SecondClock(
+        second: Int,
+        eachWidth: Dp,
+    ) {
+        NumberClock(number = second.firstNumber(), ClockSpeed.Slow, Modifier.width(eachWidth))
+        NumberClock(number = second.secondNumber(), ClockSpeed.Fast, Modifier.width(eachWidth))
     }
 
-    private fun DrawScope.drawHandle(
-        hourDegree: Float,
-        handleColor: Color,
-        borderSize: Float,
-        handleWidth: Float,
+    @Composable
+    private fun MainActivity.HourClock(
+        hour: Int,
+        eachWidth: Dp,
     ) {
-        drawContext.canvas.withSave {
-            drawContext.transform.rotate(hourDegree)
-            drawLine(handleColor,
-                center.copy(y = center.y + (handleWidth / 3)),
-                drawContext.size.center.copy(y = center.y - (handleWidth / 2) - (size.minDimension / 2) + borderSize),
-                strokeWidth = handleWidth)
-        }
+        NumberClock(number = hour.firstNumber(), ClockSpeed.Slow, Modifier.width(eachWidth))
+        NumberClock(number = hour.secondNumber(), ClockSpeed.Slow, Modifier.width(eachWidth))
     }
 }

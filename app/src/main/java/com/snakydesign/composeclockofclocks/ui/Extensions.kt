@@ -10,3 +10,11 @@ fun Dp.toPx(): Float {
         toPx()
     }
 }
+
+fun Int.firstNumber(): Int {
+    return this / 10
+}
+
+fun Int.secondNumber(): Int {
+    return this % 10
+}

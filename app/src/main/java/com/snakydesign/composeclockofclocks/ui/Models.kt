@@ -14,6 +14,17 @@ data class LittleClockTime(
         val BottomLeft = LittleClockTime(3, 0)
         val Vertical = LittleClockTime(0, 6)
         val Horizontal = LittleClockTime(3, 9)
-        val Nothing = LittleClockTime(7,7)
+        val Empty = LittleClockTime(7,7)
+
+        val FiveBottomLeft = LittleClockTime(0,2)
+        val FiveBottomRight = LittleClockTime(10,0)
+        val FiveTopLeft = LittleClockTime(6,2)
+        val FiveTopRight = LittleClockTime(10,6)
     }
 }
+
+enum class ClockSpeed(val duration: Int){
+    Slow(3000),
+    Fast(700)
+}
+typealias T = LittleClockTime
