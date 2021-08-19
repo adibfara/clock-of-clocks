@@ -1,7 +1,7 @@
 
 A Clock of Clocks made with Jetpack Compose
 --------------------------------------------------------
-![Image](https://raw.githubusercontent.com/adibfara/clock-of-clocks/main/static/preview.mp4)
+![Image](https://raw.githubusercontent.com/adibfara/clock-of-clocks/main/static/preview.gif)
 
 You can download the APK [Here](https://raw.githubusercontent.com/adibfara/clock-of-clocks/main/static/app.apk).
 
