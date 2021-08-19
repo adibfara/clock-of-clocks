@@ -69,10 +69,13 @@ class MainActivity : ComponentActivity() {
                         minute.value,
                         second.value,
                         Modifier.align(Alignment.Center))
-                    Text(text = "Clock of Clocks by TheSNAKY",
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(16.dp))
+                    Column(Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(16.dp)) {
+                        Text(text = "Clock of Clocks")
+                        Text(text = "Source Available at github.com/adibfara/clock-of-clocks", style = MaterialTheme.typography.caption)
+
+                    }
                 }
             }
         }
