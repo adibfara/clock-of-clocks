@@ -7,6 +7,10 @@ You can download the APK [Here](https://raw.githubusercontent.com/adibfara/clock
 
 This project is inspired by [A Clock of Clocks](https://raw.githubusercontent.com/adibfara/clock-of-clocks/main/static/clock-of-clocks.mp4).
 
+Other Implementations
+=======
+This project has been implemented in Flutter [here](https://github.com/HoseinHaqiqian/clock_of_clocks).
+
 License
 =======
 
